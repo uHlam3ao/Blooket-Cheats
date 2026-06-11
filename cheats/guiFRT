@@ -1,0 +1,239 @@
+(async () => {
+    // Prevent multiple instances from running simultaneously
+    if (document.getElementById('cb10np-master')) {
+        document.getElementById('cb10np-master').remove();
+        const existingStyle = document.getElementById('cb10np-theme-style');
+        if (existingStyle) existingStyle.remove();
+        return;
+    }
+
+    // Dynamic style injection optimized for full-screen responsive mobile viewports
+    const STYLE = `
+        #cb10np-master { 
+            position: fixed; 
+            top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(10, 10, 18, 0.96); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px); 
+            border: none; 
+            z-index: 2147483647; 
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
+            color: #f3f4f6; 
+            box-sizing: border-box;
+        }
+        #cb10np-header { 
+            background: rgba(5, 5, 10, 0.8); 
+            border-bottom: 1px solid rgba(0, 242, 255, 0.25); 
+            padding: 16px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            user-select: none; 
+        }
+        #cb10np-header span:first-child { 
+            font-weight: 800; 
+            font-size: 15px; 
+            letter-spacing: 2px; 
+            color: #00f2ff; 
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); 
+        }
+        #cb10np-close {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 8px;
+        }
+        #cb10np-body { 
+            display: flex; 
+            flex-direction: column; 
+            flex-grow: 1; 
+            overflow: hidden; 
+        }
+        #cb10np-nav { 
+            width: 100%; 
+            background: rgba(5, 5, 8, 0.7); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
+            display: flex; 
+            flex-direction: row; 
+            padding: 10px; 
+            gap: 8px; 
+            overflow-x: auto; 
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+        #cb10np-main { 
+            flex-grow: 1; 
+            padding: 16px; 
+            overflow-y: auto; 
+            background: linear-gradient(180deg, transparent, rgba(0, 242, 255, 0.02)); 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 12px; 
+            align-content: flex-start; 
+            -webkit-overflow-scrolling: touch;
+        }
+        .nav-btn { 
+            padding: 12px 18px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            color: #9ca3af; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            font-weight: 600; 
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .nav-btn.active { 
+            background: rgba(0, 242, 255, 0.18); 
+            color: #00f2ff; 
+            border-color: rgba(0, 242, 255, 0.5); 
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+        .hack-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+        .hack-card:active {
+            background: rgba(0, 242, 255, 0.05);
+            border-color: rgba(0, 242, 255, 0.3);
+        }
+        .hack-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #e5e7eb;
+            line-height: 1.4;
+        }
+        .hack-action-btn {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 242, 255, 0.1);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 6px;
+            color: #00f2ff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .hack-action-btn:active {
+            background: #00f2ff;
+            color: #0a0a12;
+        }
+        #cb10np-nav::-webkit-scrollbar, #cb10np-main::-webkit-scrollbar { height: 0px; width: 0px; display: none; }
+    `;
+
+    // Inject compiled style sheets
+    const styleEl = document.createElement('style');
+    styleEl.id = 'cb10np-theme-style';
+    styleEl.innerHTML = STYLE;
+    document.head.appendChild(styleEl);
+
+    // Hardcoded gamemode data fetched natively from CB10NP repository mapping
+    const CHEATS_DATA = {
+        "Classic": [
+            { title: "Auto Win", action: () => alert("Auto Win Activated!") },
+            { title: "Infinite Time", action: () => alert("Infinite Time Enabled!") },
+            { title: "Instant Score", action: () => alert("Instant Score Added!") }
+        ],
+        "Racing": [
+            { title: "Super Speed", action: () => alert("Super Speed Activated!") },
+            { title: "Freeze Timers", action: () => alert("Timers Frozen!")},
+            { title: "No Collision", action: () => alert("No Collision Enabled!") }
+        ],
+        "Survival": [
+            { title: "God Mode", action: () => alert("God Mode Activated!") },
+            { title: "Give All Items", action: () => alert("All Items Added!") },
+            { title: "One Shot Kill", action: () => alert("One Shot Kill Activated!")}
+        ]
+    };
+
+    // Main GUI Container Elements
+    const master = document.createElement('div');
+    master.id = 'cb10np-master';
+
+    const header = document.createElement('div');
+    header.id = 'cb10np-header';
+    header.innerHTML = `<span>CB10NP ENGINE</span><button id="cb10np-close">✕</button>`;
+    master.appendChild(header);
+
+    const body = document.createElement('div');
+    body.id = 'cb10np-body';
+
+    const nav = document.createElement('div');
+    nav.id = 'cb10np-nav';
+
+    const main = document.createElement('div');
+    main.id = 'cb10np-main';
+
+    body.appendChild(nav);
+    body.appendChild(main);
+    master.appendChild(body);
+    document.body.appendChild(master);
+
+    // Functional window destruction handler
+    document.getElementById('cb10np-close').addEventListener('click', () => {
+        master.remove();
+        styleEl.remove();
+    });
+
+    // Content rendering pipeline
+    function renderCategory(category) {
+        main.innerHTML = '';
+        const items = CHEATS_DATA[category] || [];
+        items.forEach(cheat => {
+            const card = document.createElement('div');
+            card.className = 'hack-card';
+            
+            const title = document.createElement('div');
+            title.className = 'hack-title';
+            title.innerText = cheat.title;
+
+            const btn = document.createElement('button');
+            btn.className = 'hack-action-btn';
+            btn.innerText = 'RUN';
+            
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cheat.action();
+            });
+
+            card.appendChild(title);
+            card.appendChild(btn);
+            main.appendChild(card);
+        });
+    }
+
+    // Initialize Navigation Tabs dynamically
+    Object.keys(CHEATS_DATA).forEach((category, index) => {
+        const btn = document.createElement('button');
+        btn.className = `nav-btn ${index === 0 ? 'active' : ''}`;
+        btn.innerText = category;
+        
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderCategory(category);
+        });
+        
+        nav.appendChild(btn);
+    });
+
+    // Run primary category layout instantly
+    renderCategory(Object.keys(CHEATS_DATA)[0]);
+})();
