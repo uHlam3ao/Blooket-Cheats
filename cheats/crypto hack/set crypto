@@ -1,0 +1,31 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const amount = n.contentWindow.prompt("How much crypto do you want?");
+    
+    if (amount) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) return el[key];
+            }
+        };
+
+        try {
+            let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+            
+          
+            stateNode.setState({ 
+                crypto: Number(amount)
+            });
+
+            n.contentWindow.alert("Crypto set to: " + amount);
+        } catch (e) {
+            n.contentWindow.alert("Error: Make sure you are in a Crypto Hack game!");
+        }
+    }
+
+    n.remove();
+    console.clear();
+})();
