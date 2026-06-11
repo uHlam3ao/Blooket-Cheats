@@ -1,0 +1,56 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const weight = n.contentWindow.prompt("How much weight do you want?");
+    
+    if (weight) {
+        const getReact = (el) => {
+        };
+
+        try {
+            let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+            stateNode.setState({ 
+                weight: Number(weight), 
+                weight2: Number(weight) 
+            });
+            n.contentWindow.alert("Weight set!");
+        } catch (e) {
+            n.contentWindow.alert("Error: Make sure you are in the game!");
+        }
+    }
+
+    n.remove();
+    console.clear();
+})();
+
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const weight = n.contentWindow.prompt("How much weight do you want?");
+    
+    if (weight) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) return el[key];
+            }
+        };
+
+        try {
+            let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+            stateNode.setState({ 
+                weight: Number(weight), 
+                weight2: Number(weight) 
+            });
+            n.contentWindow.alert("Weight set!");
+        } catch (e) {
+            n.contentWindow.alert("Error: Make sure you are in the game!");
+        }
+    }
+
+    n.remove();
+    console.clear();
+})();
