@@ -1,0 +1,95 @@
+(async () => {
+    let blooks = null;
+    const patch = (m, cb) => {
+        const o = Object[m];
+        Object[m] = function (...args) { return cb(this, args, o); };
+        return () => { Object[m] = o; };
+    };
+    const uK = patch('keys', (s, a, o) => { if (a && 'Chick' in a) blooks = a; return o.apply(s, a); });
+    const uE = patch('entries', (s, a, o) => { if (a && 'Chick' in a) blooks = a; return o.apply(s, a); });
+
+    const getList = () => {
+        if (blooks) return Object.keys(blooks).filter(b => b !== 'Dull Blue');
+        return [ 
+            "Chick", "Chicken", "Cow", "Pig", "Sheep", "Goat", "Duck", "Goose", "Horse", "Donkey",
+            "Cat", "Dog", "Bunny", "Goldfish", "Hamster", "Turtle", "Kitten", "Puppy", "Rabbit",
+            "Bear", "Deer", "Fox", "Frog", "Owl", "Raccoon", "Squirrel", "Hedgehog", "Moose", "Beaver", "Skunk",
+            "Wolf", "Tiger", "Leopard", "Gorilla", "Cheetah", "Elephant", "Zebra", "Lion", "Hippo", "Rhino",
+            "Crocodile", "Snake", "Flamingo", "Chimpanzee", "Sloth", "Koala", "Panda", "Toucan", "Macaw",
+            "Lemur", "Baboon", "Okapi", "Meerkat", "Hyena", "Ostrich", "Warthog", "Lioness", "Cub",
+            "King", "Queen", "Jester", "Knight", "Lord", "Wizard", "Elf", "Witch", "Orc", "Dragon",
+            "Slime Monster", "Zombie", "Mummy", "Vampire", "Werewolf", "Ghost", "Spooky Ghost", "Pumpkin",
+            "Swamp Monster", "Frankenstein", "Dracula", "Phantom King", "Timmy", "Lil Bot", "Lovely Bot", 
+            "Buddy Bot", "Heavy Bot", "Janitor Bot", "Medic Bot", "Brainy Bot", "Mega Bot", "Master Elf", 
+            "Santa Claus", "Snowman", "Gingerbread Man", "Gingerbread House", "Reindeer", "Yeti", "Nutcracker", 
+            "Frost Wreath", "Tropical Globe", "Spaceman", "Earth", "Meteor", "Stars", "Alien", "Planet", 
+            "UFO", "Spaceship", "Astronaut", "Red Astronaut", "Blue Astronaut", "Green Astronaut", "Pink Astronaut", 
+            "Orange Astronaut", "Yellow Astronaut", "Black Astronaut", "Purple Astronaut", "Brown Astronaut", 
+            "Cyan Astronaut", "Lime Astronaut", "Rainbow Astronaut", "Megastodon", "Toast", "Cereal", "Milk", 
+            "Pancakes", "Waffles", "Bacon", "Pizza", "Yogurt", "Orange Juice", "French Toast", "Hash Brown",
+            "Red Sweatshirt", "Green Sweatshirt", "Sandwich", "Apple", "Banana", "Grapes", "Broccoli", "Carrot",
+            "Baby Penguin", "Penguin", "Polar Bear", "Seal", "Walrus", "Arctic Fox", "Arctic Hare", "Snowy Owl",
+            "Blobfish", "Clownfish", "Crab", "Dolphin", "Fish", "Jellyfish", "Narwhal", "Octopus", "Orca", 
+            "Pufferfish", "Shark", "Sea Turtle", "Starfish", "Stingray", "Whale", "T-Rex", "Triceratops", 
+            "Velociraptor", "Stegosaurus", "Pterodactyl", "Brachiosaurus", "Ankylosaurus", "Ichthyosaurus",
+            "Pirate", "Captain", "First Mate", "Sailor", "Parrot", "Peg Leg", "Hook", "Treasure Chest", "Ship",
+            "Unicorn", "Pegasus", "Phoenix", "Mermaid", "Griffin", "Kraken", "Minotaur", "Sphinx",
+            "Spook", "Slime", "Pumpkin", "Web", "Spooky Mummy", "Spooky Pumpkin", "Spooky Bone", "Frank", 
+            "Vamp", "Grave", "Skull", "Bat", "Scarecrow", "Crow", "Toad", "Spider", "Rat", "Goblin", 
+            "Gargoyle", "Demon", "Reaper", "Angel", "Cupid", "Heart", "Rose", "Teddy Bear", "Chocolate", 
+            "Ring", "Dove", "Swan", "Cloud", "Sun", "Moon", "Star", "Rainbow", "Lightning", "Rain", 
+            "Snow", "Wind", "Storm", "Fire", "Water", "Air", "Ice", "Rock", "Sand", "Gold", "Silver", 
+            "Bronze", "Diamond", "Ruby", "Emerald", "Sapphire", "Amethyst", "Topaz", "Opal", "Pearl", 
+            "Crystal", "Gem", "Lime", "Cyan", "Brown", "Purple", "Black", "Pink", "Green", "Blue", 
+            "Red", "Orange", "Yellow", "White", "Grey", "Old Boots", "Rusty Wheel", "Tin Can", "Lost Key", 
+            "Sunken Ship", "Anchor", "Submarine", "Scuba Diver", "Wise Caterpillar", "White Tiger", "Agent Owl",
+            "Master Wu", "Peacock", "Chroma Lion", "Rainbow Panda", "London Bus", "Eiffel Tower"
+        ];
+    };
+
+    const run = () => {
+        const list = getList();
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+        while (walker.nextNode()) {
+            const el = walker.currentNode;
+            for (const key in el) {
+                if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                    let fiber = el[key];
+                    while (fiber) {
+                        const node = fiber.stateNode;
+                        if (node?.state) {
+                            const payload = {};
+                            if (node.state.unlocks) {
+                                payload.unlocks = Array.from(new Set([...(Array.isArray(node.state.unlocks) ? node.state.unlocks : []), ...list]));
+                                payload.takenBlooks = [];
+                            }
+                            ['blooks', 'blookData', 'allBlooks'].forEach(k => {
+                                if (node.state[k]) {
+                                    const freshMap = {};
+                                    list.forEach(b => {
+                                        freshMap[b] = typeof node.state[k][b] === 'object' ? { ...node.state[k][b], unlocked: true, count: 99 } : 1;
+                                    });
+                                    payload[k] = freshMap;
+                                }
+                            });
+                            if (node.state.allSets) {
+                                payload.allSets = Array.from(new Set([...(Array.isArray(node.state.allSets) ? node.state.allSets : []), 'Medieval', 'Breakfast', 'Wonderland', 'Bot', 'Space', 'Dino', 'Aquatic', 'Safari', 'Tropical', 'Ice Monster', 'Spooky', 'Blizzard', 'Hidden', 'Color', 'Mythical', 'Farm Animals', 'Forest Animals', 'Pets', 'Pirate', 'Arctic', 'Sandwich', 'Classic']));
+                            }
+                            if (Object.keys(payload).length > 0) {
+                                node.setState(payload, () => node.forceUpdate?.());
+                            }
+                        }
+                        fiber = fiber.return;
+                    }
+                }
+            }
+        }
+    };
+
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            run();
+            if (i === 4) { uK(); uE(); }
+        }, i * 150);
+    }
+})();
