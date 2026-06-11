@@ -1,0 +1,24 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) return el[key];
+        }
+    };
+
+    try {
+        let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+        let players = stateNode.state.players || [];
+        let output = players.map(p => `${p.name}: ${p.password || "Unknown"}`).join('\n');
+        
+        n.contentWindow.alert(output || "No passwords found yet!");
+    } catch (e) {
+        n.contentWindow.alert("Error: Only works during a hacking turn!");
+    }
+
+    n.remove();
+    console.clear();
+})();
