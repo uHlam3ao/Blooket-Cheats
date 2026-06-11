@@ -1,0 +1,319 @@
+(() => {
+    const GUI_CONFIG = {
+        title: "Blooket-Cheats00tgs",
+        width: "320px",
+        maxHeight: "85vh",
+        backgroundColor: "#0d0d12",
+        textColor: "#f3f4f6",
+        accentColor: "#90293f",
+        secondaryAccent: "#c33c54",
+        panelBackground: "#161622",
+        buttonBackground: "#222235",
+        fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+        fontSize: "12px",
+        zIndex: "9999999"
+    };
+
+    const gui = document.createElement('div');
+    gui.id = "blooket-omni-engine";
+    Object.assign(gui.style, {
+        position: 'fixed',
+        top: '40px',
+        right: '40px',
+        width: GUI_CONFIG.width,
+        maxHeight: GUI_CONFIG.maxHeight,
+        overflowY: 'auto',
+        backgroundColor: GUI_CONFIG.backgroundColor,
+        color: GUI_CONFIG.textColor,
+        border: `1px solid rgba(255, 255, 255, 0.1)`,
+        borderTop: `3px solid ${GUI_CONFIG.accentColor}`,
+        borderRadius: '12px',
+        padding: '16px',
+        fontFamily: GUI_CONFIG.fontFamily,
+        fontSize: GUI_CONFIG.fontSize,
+        zIndex: GUI_CONFIG.zIndex,
+        boxShadow: '0 10px 40px rgba(0,0,0,0.6)',
+        scrollbarWidth: 'thin',
+        userSelect: 'none'
+    });
+
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+        #blooket-omni-engine::-webkit-scrollbar { width: 4px; }
+        #blooket-omni-engine::-webkit-scrollbar-thumb { background: ${GUI_CONFIG.accentColor}; border-radius: 4px; }
+        .omni-btn { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.05); }
+        .omni-btn:hover { background-color: ${GUI_CONFIG.accentColor} !important; color: #ffffff !important; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(144, 41, 63, 0.3); }
+        .omni-btn:active { transform: translateY(1px); }
+        .omni-toggle { transition: background 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .omni-toggle:hover { background-color: rgba(255,255,255,0.03) !important; }
+        .status-display { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px; background: rgba(255,255,255,0.02); border-radius: 6px; font-weight: 600; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.03); }
+        .indicator { width: 8px; height: 8px; border-radius: 50%; background: #6b7280; transition: background 0.3s; }
+        .indicator.active { background: #10b981; box-shadow: 0 0 8px #10b981; }
+    `;
+    document.head.appendChild(styleSheet);
+
+    const closeBtn = document.createElement('span');
+    closeBtn.innerText = '×';
+    Object.assign(closeBtn.style, {
+        position: 'absolute',
+        top: '12px',
+        right: '16px',
+        cursor: 'pointer',
+        fontSize: '22px',
+        fontWeight: 'bold',
+        color: '#6b7280',
+        lineHeight: '1'
+    });
+    closeBtn.onclick = () => { gui.remove(); styleSheet.remove(); };
+    gui.appendChild(closeBtn);
+
+    const title = document.createElement('div');
+    title.innerText = GUI_CONFIG.title;
+    Object.assign(title.style, {
+        fontWeight: '700',
+        letterSpacing: '0.3px',
+        marginBottom: '10px',
+        paddingRight: '20px',
+        cursor: 'move',
+        fontSize: '12px',
+        color: '#ffffff',
+        textAlign: 'left'
+    });
+    gui.appendChild(title);
+
+    let isDragging = false, offsetX = 0, offsetY = 0;
+    title.onmousedown = (e) => {
+        isDragging = true;
+        offsetX = e.clientX - gui.getBoundingClientRect().left;
+        offsetY = e.clientY - gui.getBoundingClientRect().top;
+    };
+    document.onmousemove = (e) => {
+        if (!isDragging) return;
+        gui.style.left = `${e.clientX - offsetX}px`;
+        gui.style.top = `${e.clientY - offsetY}px`;
+        gui.style.right = 'auto';
+    };
+    document.onmouseup = () => isDragging = false;
+
+    const statusPanel = document.createElement('div');
+    statusPanel.className = 'status-display';
+    const statusIndicator = document.createElement('div');
+    statusIndicator.className = 'indicator';
+    const statusText = document.createElement('span');
+    statusText.innerText = "Automation Engine Idle";
+    statusPanel.appendChild(statusIndicator);
+    statusPanel.appendChild(statusText);
+    gui.appendChild(statusPanel);
+
+    const getReactState = () => {
+        const el = document.querySelector("#app > div > div");
+        if (!el) throw new Error("App container missing.");
+        for (const key in el) {
+            if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) {
+                return el[key].return.stateNode;
+            }
+        }
+        throw new Error("State layout context unmapped.");
+    };
+
+    const copyToClipboard = (text) => {
+        const el = document.createElement('textarea');
+        el.value = text;
+        Object.assign(el.style, { position: 'fixed', top: '0', left: '0', opacity: '0' });
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+    };
+
+    const generateVariance = (base, percentMin = 0.85, percentMax = 1.15) => {
+        const multiplier = Math.random() * (percentMax - percentMin) + percentMin;
+        return Math.floor(base * multiplier);
+    };
+
+    const sleep = (ms) => new Promise(res => setTimeout(res, generateVariance(ms, 0.8, 1.25)));
+
+    const createSection = (name) => {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.style.marginBottom = '10px';
+        sectionDiv.style.backgroundColor = GUI_CONFIG.panelBackground;
+        sectionDiv.style.borderRadius = '8px';
+        sectionDiv.style.overflow = 'hidden';
+
+        const toggleBtn = document.createElement('div');
+        toggleBtn.className = "omni-toggle";
+        toggleBtn.innerText = `▶  ${name.toUpperCase()}`;
+        Object.assign(toggleBtn.style, {
+            backgroundColor: 'rgba(255,255,255,0.02)',
+            color: '#9ca3af',
+            padding: '10px 12px',
+            cursor: 'pointer',
+            fontWeight: '700',
+            textAlign: 'left',
+            fontSize: '10px',
+            letterSpacing: '0.5px'
+        });
+
+        const contentDiv = document.createElement('div');
+        contentDiv.style.display = 'none';
+        contentDiv.style.padding = '8px';
+
+        toggleBtn.onclick = () => {
+            if (contentDiv.style.display === 'none') {
+                contentDiv.style.display = 'block';
+                toggleBtn.innerText = `▼  ${name.toUpperCase()}`;
+                toggleBtn.style.color = '#ffffff';
+            } else {
+                contentDiv.style.display = 'none';
+                toggleBtn.innerText = `▶  ${name.toUpperCase()}`;
+                toggleBtn.style.color = '#9ca3af';
+            }
+        };
+
+        sectionDiv.appendChild(toggleBtn);
+        sectionDiv.appendChild(contentDiv);
+        gui.appendChild(sectionDiv);
+        return contentDiv;
+    };
+
+    const createButton = (container, text, codeString, onClickAction) => {
+        const btn = document.createElement('button');
+        btn.className = "omni-btn";
+        btn.innerText = text;
+        Object.assign(btn.style, {
+            width: '100%',
+            backgroundColor: GUI_CONFIG.buttonBackground,
+            color: '#d1d5db',
+            border: 'none',
+            padding: '10px 12px',
+            margin: '4px 0',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '11px',
+            fontWeight: '600',
+            textAlign: 'left'
+        });
+        btn.onclick = async () => {
+            copyToClipboard(codeString);
+            statusIndicator.className = 'indicator active';
+            statusText.innerText = "Simulating Event...";
+            try {
+                const stateNode = getReactState();
+                await onClickAction(stateNode);
+                statusText.innerText = "Action Applied Natively";
+            } catch (e) {
+                statusText.innerText = "Copied Payload to Clipboard";
+            }
+            setTimeout(() => {
+                statusIndicator.className = 'indicator';
+                statusText.innerText = "Automation Engine Idle";
+            }, 2500);
+            console.clear();
+        };
+        container.appendChild(btn);
+    };
+
+    const PAYLOADS = {
+        fishing: {
+            maxWeight: `(async()=>{const v=(b,l=0.85,u=1.15)=>Math.floor(b*(Math.random()*(u-l)+l));const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({weight:v(999999999),weight2:v(999999999)});alert("Weight initialized with variance multipliers.");}catch(e){alert("Error mapping node.");}})();`,
+            maxFrenzy: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({frenzy:true,frenzyTime:Math.floor(7200000*(Math.random()*0.2+0.9)),isFrenzy:true});alert("Frenzy instance modified.");}catch(e){alert("Error.");}})();`,
+            maxLure: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({lure:5});alert("Lure updated.");}catch(e){alert("Error.");}})();`
+        },
+        crypto: {
+            maxCrypto: `(async()=>{const v=(b,l=0.9,u=1.1)=>Math.floor(b*(Math.random()*(u-l)+l));const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({crypto:v(5000000000)});alert("Crypto ledger patched via natural variance.");}catch(e){alert("Error.");}})();`,
+            esp: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({autoInputPassword:true,passwordESP:true});alert("ESP overlay integrated.");}catch(e){alert("Error.");}})();`
+        },
+        racing: {
+            instantWin: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({progress:(s.state.goalAmount||100)-Math.floor(Math.random()*3)});alert("Telemetry simulated near finish threshold.");}catch(e){alert("Error.");}})();`
+        },
+        cafe: {
+            maxCash: `(async()=>{const v=(b,l=0.88,u=1.12)=>Math.floor(b*(Math.random()*(u-l)+l));const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({cafeCash:v(150000000)});alert("Cash threshold safely updated.");}catch(e){alert("Error.");}})();`,
+            maxStock: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;if(s.state.foods){let f=s.state.foods.map(x=>({...x,stock:Math.floor(90+Math.random()*9),level:5}));s.setState({foods:f});alert("Item matrix automated and stocked.");}else{alert("No data paths.");}}catch(e){alert("Error.");}})();`
+        },
+        factory: {
+            maxCash: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({cash:999999999});alert("Factory Cash maxed out.");}catch(e){alert("Error.");}})();`,
+            maxBlooks: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;if(s.state.blooks){let nb=s.state.blooks.map(x=>({...x,level:4,count:99}));s.setState({blooks:nb});alert("All Factory Blooks maximized.");}}catch(e){alert("Error.");}})();`
+        },
+        tower: {
+            maxStats: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({coins:99999,health:999,maxHealth:999});alert("Tower stats maximized.");}catch(e){alert("Error.");}})();`
+        },
+        global: {
+            alwaysCorrect: `(async()=>{const g=(e)=>{for(const k in e){if(k.startsWith("__reactInternalInstance$")||k.startsWith("__reactFiber$"))return e[k]}};try{let s=g(document.querySelector("#app > div > div")).return.stateNode;s.setState({allAnswersCorrect:true,answerESP:true});alert("Dynamic correctness hook applied.");}catch(e){alert("Error.");}})();`
+        }
+    };
+
+    const fishingContainer = createSection("Fishing Frenzy");
+    createButton(fishingContainer, "Max Weight Override", PAYLOADS.fishing.maxWeight, async (stateNode) => {
+        await sleep(450);
+        stateNode.setState({ weight: generateVariance(99999999), weight2: generateVariance(99999999) });
+    });
+    createButton(fishingContainer, "Natural Frenzy Window", PAYLOADS.fishing.maxFrenzy, async (stateNode) => {
+        await sleep(300);
+        stateNode.setState({ frenzy: true, frenzyTime: generateVariance(3600000, 0.9, 1.1), isFrenzy: true });
+    });
+    createButton(fishingContainer, "Level 5 Lure Upgrade", PAYLOADS.fishing.maxLure, async (stateNode) => {
+        await sleep(600);
+        stateNode.setState({ lure: 5 });
+    });
+
+    const cryptoContainer = createSection("Crypto Hack");
+    createButton(cryptoContainer, "Fluctuating Crypto Balance", PAYLOADS.crypto.maxCrypto, async (stateNode) => {
+        await sleep(500);
+        stateNode.setState({ crypto: generateVariance(85000000) });
+    });
+    createButton(cryptoContainer, "Passkey Decryption ESP", PAYLOADS.crypto.esp, async (stateNode) => {
+        await sleep(250);
+        stateNode.setState({ autoInputPassword: true, passwordESP: true });
+    });
+
+    const racingContainer = createSection("Racing");
+    createButton(racingContainer, "Close Race Victory", PAYLOADS.racing.instantWin, async (stateNode) => {
+        await sleep(700);
+        const targetGoal = stateNode.state.goalAmount || 100;
+        stateNode.setState({ progress: targetGoal - generateVariance(2, 1, 2) });
+    });
+
+    const cafeContainer = createSection("Café");
+    createButton(cafeContainer, "Vault Capital Shift", PAYLOADS.cafe.maxCash, async (stateNode) => {
+        await sleep(550);
+        stateNode.setState({ cafeCash: generateVariance(75000000) });
+    });
+    createButton(cafeContainer, "Item Restock Run", PAYLOADS.cafe.maxStock, async (stateNode) => {
+        await sleep(800);
+        if (stateNode.state.foods) {
+            let modernFoods = stateNode.state.foods.map(food => ({ ...food, stock: generateVariance(94, 0.95, 1.05), level: 5 }));
+            stateNode.setState({ foods: modernFoods });
+        }
+    });
+
+    const factoryContainer = createSection("Factory");
+    createButton(factoryContainer, "Max Factory Cash", PAYLOADS.factory.maxCash, async (stateNode) => {
+        await sleep(400);
+        stateNode.setState({ cash: 999999999 });
+    });
+    createButton(factoryContainer, "Max Level All Blooks", PAYLOADS.factory.maxBlooks, async (stateNode) => {
+        await sleep(600);
+        if (stateNode.state.blooks) {
+            let nb = stateNode.state.blooks.map(x => ({ ...x, level: 4, count: 99 }));
+            stateNode.setState({ blooks: nb });
+        }
+    });
+
+    const towerContainer = createSection("Tower of Doom");
+    createButton(towerContainer, "Max Coins & Max Health", PAYLOADS.tower.maxStats, async (stateNode) => {
+        await sleep(500);
+        stateNode.setState({ coins: 99999, health: 999, maxHealth: 999 });
+    });
+
+    const globalContainer = createSection("Global");
+    createButton(globalContainer, "Always True Evaluation Loop", PAYLOADS.global.alwaysCorrect, async (stateNode) => {
+        await sleep(400);
+        stateNode.setState({ allAnswersCorrect: true, answerESP: true });
+    });
+
+    document.body.appendChild(gui);
+
+    const PROTECTION_BUFFER = Array(1100).fill("/* Blooket-Cheats00tgs */");
+    const getPaddingLength = () => PROTECTION_BUFFER.length;
+    getPaddingLength();
+})();
