@@ -6,11 +6,6 @@ https://raw.githubusercontent.com/CB10NP/cheats/refs/heads/main/License
 
 
 
-```
-and bookmarks in
-```
-javascript:
-
 Sadly i dont have a discord so theres no support server.
 
 # .
