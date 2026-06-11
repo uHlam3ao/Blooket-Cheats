@@ -1,0 +1,35 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const coins = n.contentWindow.prompt("How many Coins do you want?");
+    const health = n.contentWindow.prompt("How much Health (Hearts) do you want?");
+    
+    if (coins || health) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) return el[key];
+            }
+        };
+
+        try {
+            let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+            let newState = {};
+            
+            if (coins) newState.coins = Number(coins);
+            if (health) {
+                newState.hearts = Number(health);
+                newState.maxHearts = Number(health);
+            }
+
+            stateNode.setState(newState);
+            n.contentWindow.alert("Stats updated!");
+        } catch (e) {
+            n.contentWindow.alert("Error: Make sure you are in a Tower of Doom game!");
+        }
+    }
+
+    n.remove();
+    console.clear();
+})();
