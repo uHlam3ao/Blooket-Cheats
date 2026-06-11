@@ -1,0 +1,31 @@
+name: Bug Report
+about: Tell us what is broken so we can fix it.
+title: '[BUG] '
+labels: bug
+assignees: ''
+
+---
+
+## What is happening?
+Give us a quick summary of the issue. What went wrong?
+
+## Steps to see it happen
+What buttons did you click to get this error? Walk us through it:
+1. I went to...
+2. I clicked on...
+3. I scrolled down to...
+4. I saw this happen:
+
+## What was supposed to happen?
+Tell us what you expected to see instead.
+
+## Got pics?
+If you have screenshots or a quick video, drop them right here.
+
+## Your tech setup
+- OS: [like Windows, Mac, iOS]
+- Browser: [like Chrome, Safari]
+- Node Version: [like v20]
+
+## Extra details
+Add any extra notes or copy-pasted error codes here.
