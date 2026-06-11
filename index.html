@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blooket Fan Page</title>
+    <style>
+        body { font-family: sans-serif; background-color: #2f1c51; color: #ffffff; text-align: center; }
+        header { background-color: #3b2366; padding: 20px; }
+        h1 { color: #00d2ff; }
+        .container { max-width: 800px; margin: 30px auto; padding: 20px; }
+        .join-box { background-color: #ffffff; color: #333333; padding: 30px; border-radius: 15px; display: inline-block; max-width: 400px; }
+        input[type="text"] { width: 80%; padding: 12px; margin: 10px 0; border: 3px solid #ccc; border-radius: 8px; text-align: center; }
+        button { background-color: #00d2ff; color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        .card { background-color: #3b2366; padding: 20px; border-radius: 10px; }
+        .card h3 { color: #00d2ff; }
+    </style>
+</head>
+<body>
+    <header><h1>Welcome to the Blooket Zone</h1></header>
+    <div class="container">
+        <div class="join-box">
+            <h2>Blooket Code</h2>
+            <input type="text" id="gameCode" placeholder="Enter Game ID">
+            <button onclick="goToBlooket()">Join Game</button>
+        </div>
+        <div class="grid">
+            <div class="card"><h3>Favorite Blooks</h3><p>Arctic Fox / King</p></div>
+            <div class="card"><h3>Best Modes</h3><p>Tower Defense / Gold Quest</p></div>
+        </div>
+    </div>
+    <script>
+        function goToBlooket() {
+            const code = document.getElementById('gameCode').value;
+            if (code) window.location.href = "https://blooket.com" + code;
+            else alert("Please enter a game code first!");
+        }
+    </script>
+</body>
+</html>
