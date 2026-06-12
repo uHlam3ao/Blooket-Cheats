@@ -1,0 +1,102 @@
+// ==UserScript==
+// @name         Blooket All-Gamemodes Master Cheat Menu
+// @namespace    http://tampermonkey.net
+// @version      2.0
+// @description  A floating GUI cheat panel that handles scores and stats for multiple Blooket gamemodes.
+// @author       YourName
+// @match        *://*://*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Helper function to extract React application state
+    const getReactState = () => {
+        const el = document.querySelector("#app > div > div");
+        if (!el) return null;
+        for (const key in el) {
+            if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) {
+                return el[key]?.return?.stateNode;
+            }
+        }
+        return null;
+    };
+
+    // Core function to push modified numbers directly to Blooket's Firebase database
+    const updateFirebaseStat = (pathKey, amount) => {
+        let stateNode = getReactState();
+        if (!stateNode || !stateNode.props || !stateNode.props.firebase) {
+            alert("Error: Could not find active match data! Make sure questions have started.");
+            return;
+        }
+        let props = stateNode.props;
+        props.firebase.setVal({
+            id: props.client.hostId,
+            path: "c/" + props.client.name + "/" + pathKey,
+            val: Number(amount)
+        });
+        alert("Stat updated successfully!");
+    };
+
+    // --- UI CREATION ---
+    
+    // Main Toggle Button
+    const menuBtn = document.createElement('button');
+    menuBtn.innerHTML = '⚡ Open Cheat Menu';
+    menuBtn.style = 'position:fixed; top:15px; right:15px; z-index:99999; padding:10px 15px; background:#00d2d3; color:black; border:none; border-radius:5px; cursor:pointer; font-weight:bold; box-shadow:0px 4px 6px rgba(0,0,0,0.3);';
+    document.body.appendChild(menuBtn);
+
+    // Main GUI Panel Box
+    const panel = document.createElement('div');
+    panel.style = 'position:fixed; top:70px; right:15px; z-index:99999; width:280px; background:#222f3e; color:white; padding:15px; border-radius:8px; box-shadow:0px 6px 12px rgba(0,0,0,0.5); font-family:sans-serif; display:none; flex-direction:column; gap:10px;';
+    
+    // Menu Title
+    const title = document.createElement('div');
+    title.innerHTML = '🎯 Blooket Multi-Cheat';
+    title.style = 'font-weight:bold; border-bottom:1px solid #576574; padding-bottom:5px; text-align:center; color:#00d2d3;';
+    panel.appendChild(title);
+
+    // Helper function to build customized option buttons inside the box
+    const addCheatOption = (label, pathKey) => {
+        const btn = document.createElement('button');
+        btn.innerHTML = label;
+        btn.style = 'width:100%; padding:8px; background:#341f97; color:white; border:none; border-radius:4px; cursor:pointer; font-weight:bold; text-align:left;';
+        btn.onmouseover = () => btn.style.background = '#5f27cd';
+        btn.onmouseout = () => btn.style.background = '#341f97';
+        
+        btn.addEventListener('click', () => {
+            const amount = prompt(`Enter desired value for [ ${label} ]:`);
+            if (amount && !isNaN(amount)) {
+                updateFirebaseStat(pathKey, amount);
+            }
+        });
+        panel.appendChild(btn);
+    };
+
+    // --- POPULATE MENU OPTIONS ---
+    addCheatOption("🏆 Classic Mode: Set Points", "p");
+    addCheatOption("🎁 Christmas: Set Toys", "t");
+    addCheatOption("🎄 Christmas: Set Toys Per Question", "tpq");
+    addCheatOption("🛡️ Blook Rush: Set Defense", "d");
+    addCheatOption("🏃 Blook Rush: Set Team Blooks", "bs");
+    addCheatOption("💰 Gold Quest: Set Total Gold", "g");
+    addCheatOption("💻 Crypto Hack: Set Crypto", "cr");
+
+    document.body.appendChild(panel);
+
+    // Menu Toggle Action
+    menuBtn.addEventListener('click', () => {
+        if (panel.style.display === 'none') {
+            panel.style.display = 'flex';
+            menuBtn.innerHTML = '❌ Close Menu';
+            menuBtn.style.background = '#ff4757';
+        } else {
+            panel.style.display = 'none';
+            menuBtn.innerHTML = '⚡ Open Cheat Menu';
+            menuBtn.style.background = '#00d2d3';
+        }
+    });
+
+})();
