@@ -1,0 +1,34 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const amount = n.contentWindow.prompt("Enter the total Toys you want in the Workshop:");
+    
+    if (amount) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) return el[key];
+            }
+        };
+        try {
+            // Locate the stateNode of the React application
+            let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+            let props = stateNode.props;
+            
+            // 't' represents the backend database key for Toys (ducks) in Santa's Workshop
+            props.firebase.setVal({
+                id: props.client.hostId,
+                path: "c/" + props.client.name + "/t",
+                val: Number(amount)
+            });
+            
+            n.contentWindow.alert("Workshop toys updated successfully!");
+        } catch (e) {
+            n.contentWindow.alert("Error! Make sure you are inside an active Santa's Workshop match.");
+        }
+    }
+    
+    n.remove();
+    console.clear();
+})();
