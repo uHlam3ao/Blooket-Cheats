@@ -1,0 +1,41 @@
+// ==UserScript==
+// @name         Blooket Master Host Dashboard Controller
+// @namespace    http://tampermonkey.net
+// @version      1.0
+// @description  Adds a control widget on the Blooket Host screen to manage live match session values.
+// @match        *://*://*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+    // Helper to get React state & panel creation logic (simplified)
+    // ... [See original source 1.1.2 for full implementation] ...
+    
+    // --- HOST FUNCTIONS ---
+    // Function: Instant Match Termination
+    endMatchBtn.addEventListener('click', () => {
+        let stateNode = getHostReactState();
+        if (stateNode) {
+            stateNode.props.firebase.setVal({
+                id: stateNode.props.client.hostId,
+                path: "t", // Overwrites server time mapping
+                val: 0
+            });
+        }
+    });
+
+    // Function: Clear All Player Glitches
+    clearGlitchesBtn.addEventListener('click', () => {
+        let stateNode = getHostReactState();
+        if (stateNode) {
+            Object.keys(stateNode.props.client.clients).forEach(username => {
+                stateNode.props.firebase.setVal({
+                    id: stateNode.props.client.hostId,
+                    path: "c/" + username + "/g", // Targets global glitch queues
+                    val: []
+                });
+            });
+        }
+    });
+})();
