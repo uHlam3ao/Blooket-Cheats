@@ -1,0 +1,37 @@
+(() => {
+    if (window.bestOptionLoop) {
+        clearInterval(window.bestOptionLoop);
+    }
+
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    window.bestOptionLoop = setInterval(() => {
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Forces the game state to always pick the absolute best option index
+                if (stateNode.state.options || stateNode.state.choices) {
+                    stateNode.setState({ 
+                        chosenOption: stateNode.state.bestOption || 0,
+                        selectedChoice: stateNode.state.bestChoice || 0
+                    });
+                }
+            }
+        } catch (e) {}
+    }, 100);
+
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('Always Best Option Active!');
+    n.remove();
+    console.clear();
+})();
