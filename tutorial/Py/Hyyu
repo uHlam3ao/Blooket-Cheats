@@ -1,0 +1,16 @@
+import tkinter as tk
+
+root = tk.Tk()
+root.geometry("200x100")
+
+# In Python, we create a Button object and style it directly
+my_button = tk.Button(
+    root, 
+    text="Click Me", 
+    bg="green",      # Background color
+    fg="white",      # Text color
+    font=("Arial", 12)
+)
+my_button.pack(pady=20)
+
+root.mainloop()
