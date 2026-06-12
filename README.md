@@ -12,4 +12,4 @@ visit
 ``` 
 https://raw.githubusercontent.com/CB10NP/cheats/refs/heads/main/README.md
 ```
-to see rules.
+offical collaberator with CB10NP
