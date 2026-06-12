@@ -3,9 +3,9 @@
     n.style.display = "none";
     document.body.append(n);
     
-    const foodAmount = n.contentWindow.prompt("Enter Food Amount (e.g. 999999):");
+    const cashAmount = n.contentWindow.prompt("Enter Cash Amount:");
     
-    if (foodAmount) {
+    if (cashAmount) {
         const getReact = (el) => {
             for (const key in el) {
                 if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) 
@@ -14,11 +14,11 @@
         };
 
         try {
-            let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+                   let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
             
-                stateNode.setState({ food: Number(foodAmount) });
+            stateNode.setState({ cash: Number(cashAmount) });
             
-            n.contentWindow.alert("Food set to " + foodAmount + "!");
+            n.contentWindow.alert("Cash set to " + cashAmount + "!");
         } catch (e) {
             n.contentWindow.alert("Error: Make sure you are on the Café game screen.");
         }
