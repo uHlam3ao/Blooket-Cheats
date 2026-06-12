@@ -1,5 +1,5 @@
 # Blooket-Cheats
-CB10NP used with permisson visit status at
+CB10NP used with permisson visit status at.(there code plus my code.)
 
 ```
 https://raw.githubusercontent.com/CB10NP/cheats/refs/heads/main/License
