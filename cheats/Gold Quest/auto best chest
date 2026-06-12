@@ -1,0 +1,10 @@
+const autoOpen = setInterval(() => {
+    const chests = document.querySelectorAll('[class*="chest"]');
+    if (chests.length > 0) {
+        chests[Math.floor(Math.random() * chests.length)].click();
+    } else {
+        document.querySelector('[class*="button"], [class*="Container"]')?.click();
+    }
+}, 500);
+
+
