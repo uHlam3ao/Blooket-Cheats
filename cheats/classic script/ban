@@ -1,0 +1,145 @@
+(async () => {
+    // Check if the script is already running to avoid duplicates
+    if (window.hasBlooketHostConsole) {
+        alert("The host console is already active on this tab!");
+        return;
+    }
+    window.hasBlooketHostConsole = true;
+    window.bannedPlayersList = [];
+
+    // Finds the hidden game data on the page
+    const getHostReactState = () => {
+        const el = document.querySelector("#app > div > div");
+        if (!el) return null;
+        for (const key in el) {
+            if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) {
+                return el[key]?.return?.stateNode;
+            }
+        }
+        return null;
+    };
+
+    // Forces a player out by updating the game database
+    const kickPlayerFromServer = (username, logOutput) => {
+        let stateNode = getHostReactState();
+        if (!stateNode || !stateNode.props || !stateNode.props.firebase) {
+            logOutput("Error: Host dashboard data not found! Make sure you are on the host screen.", "#ff4757");
+            return;
+        }
+        let props = stateNode.props;
+        
+        props.firebase.setVal({
+            id: props.client.hostId,
+            path: "c/" + username,
+            val: null
+        });
+        logOutput(`Kicked and blocked player: ${username}`, "#2ed573");
+    };
+
+    // Automatic Ban Loop: Keeps checking if blocked names try to come back
+    const banLoop = setInterval(() => {
+        let stateNode = getHostReactState();
+        if (!stateNode || !stateNode.props || !stateNode.props.client || !stateNode.props.client.clients) return;
+
+        let activeClients = Object.keys(stateNode.props.client.clients);
+        activeClients.forEach(username => {
+            if (window.bannedPlayersList.includes(username.toLowerCase())) {
+                stateNode.props.firebase.setVal({
+                    id: stateNode.props.client.hostId,
+                    path: "c/" + username,
+                    val: null
+                });
+            }
+        });
+    }, 1000);
+
+    // --- BUILD THE ON-SCREEN TERMINAL BOX ---
+    const terminal = document.createElement('div');
+    terminal.style = 'position:fixed; bottom:20px; left:20px; z-index:99999; width:460px; height:320px; background:#111; border:2px solid #ff3838; border-radius:8px; font-family:monospace; color:#ff3838; padding:12px; box-shadow:0 12px 36px rgba(0,0,0,0.8); display:flex; flex-direction:column; box-sizing:border-box; opacity:0.95;';
+
+    const header = document.createElement('div');
+    header.innerHTML = 'Blooket Host Admin Shell [Direct Console Edition]<br>Type "ban [name]" to block a user. Type "list" to view bans.<br>--------------------------------------------------';
+    header.style = 'font-size:11px; margin-bottom:8px; color:#aaa; line-height:1.4;';
+    terminal.appendChild(header);
+
+    const outputLog = document.createElement('div');
+    outputLog.style = 'flex:1; overflow-y:auto; font-size:13px; margin-bottom:8px; line-height:1.4; white-space:pre-wrap; border-bottom:1px solid #333; padding-bottom:5px;';
+    terminal.appendChild(outputLog);
+
+    const inputLine = document.createElement('div');
+    inputLine.style = 'display:flex; align-items:center;';
+    
+    const promptLabel = document.createElement('span');
+    promptLabel.innerHTML = 'Host:\\Admin&gt;&nbsp;';
+    
+    const cmdInput = document.createElement('input');
+    cmdInput.type = 'text';
+    cmdInput.style = 'flex:1; background:transparent; border:none; color:#ff3838; font-family:monospace; font-size:13px; outline:none;';
+    
+    inputLine.appendChild(promptLabel);
+    inputLine.appendChild(cmdInput);
+    terminal.appendChild(inputLine);
+    document.body.appendChild(terminal);
+
+    const printLog = (text, color = "#ff3838") => {
+        const line = document.createElement('div');
+        line.style.color = color;
+        line.textContent = text;
+        outputLog.appendChild(line);
+        outputLog.scrollTop = outputLog.scrollHeight;
+    };
+
+    // Handle commands typed into the input line
+    cmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const fullInput = cmdInput.value.trim();
+            cmdInput.value = '';
+            if (!fullInput) return;
+            printLog(`Host:\\Admin> ${fullInput}`, "#ffffff");
+
+            const parts = fullInput.split(' ');
+            const command = parts[0].toLowerCase();
+            const argument = parts.slice(1).join(' ');
+
+            switch (command) {
+                case 'help':
+                    printLog('Host Commands:', '#00d2d3');
+                    printLog('  ban [username] - Kick and permanently block a player');
+                    printLog('  list           - View currently blocked names');
+                    printLog('  unban [name]   - Remove a player from the block list');
+                    printLog('  close          - Destroy this terminal window');
+                    break;
+                case 'close':
+                    clearInterval(banLoop);
+                    window.hasBlooketHostConsole = false;
+                    terminal.remove();
+                    break;
+                case 'list':
+                    if (window.bannedPlayersList.length === 0) {
+                        printLog("The ban list is empty.", "#aaa");
+                    } else {
+                        printLog("Banned Players: " + window.bannedPlayersList.join(", "), "#ff9f43");
+                    }
+                    break;
+                case 'ban':
+                    if (!argument) return printLog("Error: Specify a username. Example: ban PlayerName", "#ff4757");
+                    const targetBan = argument.trim().toLowerCase();
+                    if (!window.bannedPlayersList.includes(targetBan)) {
+                        window.bannedPlayersList.push(targetBan);
+                    }
+                    kickPlayerFromServer(argument.trim(), printLog);
+                    break;
+                case 'unban':
+                    if (!argument) return printLog("Error: Specify a username.", "#ff4757");
+                    const targetUnban = argument.trim().toLowerCase();
+                    window.bannedPlayersList = window.bannedPlayersList.filter(name => name !== targetUnban);
+                    printLog(`Removed ${argument} from the ban list.`, "#2ed573");
+                    break;
+                default:
+                    printLog(`Unknown instruction: '${command}'. Type "help" for info.`, "#ff4757");
+            }
+        }
+    });
+
+    cmdInput.focus();
+})();
