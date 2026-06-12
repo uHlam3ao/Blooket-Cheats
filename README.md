@@ -9,7 +9,7 @@ Sadly i dont have a discord so theres no support server.
 
 # .
 visit 
-```
+``` 
 https://raw.githubusercontent.com/CB10NP/cheats/refs/heads/main/README.md
 ```
 to see rules.
