@@ -1,0 +1,38 @@
+(() => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const hpAmount = n.contentWindow.prompt('Enter Tower Defense 1 HP amount:');
+    
+    if (hpAmount && !isNaN(hpAmount)) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                    return el[key];
+                }
+            }
+        };
+
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                stateNode.setState({ 
+                    health: Number(hpAmount),
+                    hp: Number(hpAmount)
+                });
+                
+                n.contentWindow.alert(`HP set to ${hpAmount}!`);
+            } else {
+                n.contentWindow.alert('Game instance not found!');
+            }
+        } catch (e) {
+            n.contentWindow.alert('Error updating HP!');
+        }
+    }
+    
+    n.remove();
+    console.clear();
+})();
