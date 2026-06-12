@@ -1,0 +1,34 @@
+(() => {
+    if (window.invincibilityLoop) {
+        clearInterval(window.invincibilityLoop);
+    }
+
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    window.invincibilityLoop = setInterval(() => {
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                stateNode.setState({ 
+                    invincible: true,
+                    isInvincible: true
+                });
+            }
+        } catch (e) {}
+    }, 100);
+
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('Invincibility Active!');
+    n.remove();
+    console.clear();
+})();
