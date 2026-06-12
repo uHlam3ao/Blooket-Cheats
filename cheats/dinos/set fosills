@@ -1,0 +1,37 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const fossilAmount = n.contentWindow.prompt('Enter total amount of Fossils you want:');
+    
+    if (fossilAmount && !isNaN(fossilAmount)) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                    return el[key];
+                }
+            }
+        };
+
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Directly sets the internal fossil count state variable
+                stateNode.setState({ fossils: Number(fossilAmount) });
+                n.contentWindow.alert(`Fossils set to ${fossilAmount}!`);
+            } else {
+                n.contentWindow.alert('Game instance not found! Make sure you are actively inside the game match.');
+            }
+        } catch (e) {
+            n.contentWindow.alert('Error updating state!');
+        }
+    } else if (fossilAmount) {
+        n.contentWindow.alert('Please enter a valid number.');
+    }
+    
+    n.remove();
+    console.clear();
+})();
