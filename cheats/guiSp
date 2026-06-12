@@ -1,0 +1,102 @@
+// ==UserScript==
+// @name         Blooket Ultimate GUI Cheat Menu
+// @namespace    http://tampermonkey.net
+// @version      3.0
+// @description  A clean floating GUI panel to change stats for Santa's Workshop, Gold Quest, Classic, and Rush.
+// @author       YourName
+// @match        *://*://*
+// @grant        none
+// @run-at       document-idle
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Internal helper to grab the game's internal data
+    const getReactState = () => {
+        const el = document.querySelector("#app > div > div");
+        if (!el) return null;
+        for (const key in el) {
+            if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) {
+                return el[key]?.return?.stateNode;
+            }
+        }
+        return null;
+    };
+
+    // Core function to send the new score to the server
+    const updateStat = (pathKey, amount) => {
+        let stateNode = getReactState();
+        if (!stateNode || !stateNode.props || !stateNode.props.firebase) {
+            alert("Error: Game data not found! Make sure the match has fully started.");
+            return;
+        }
+        let props = stateNode.props;
+        props.firebase.setVal({
+            id: props.client.hostId,
+            path: "c/" + props.client.name + "/" + pathKey,
+            val: Number(amount)
+        });
+        alert("Score updated!");
+    };
+
+    // --- CREATE THE FLOATING TOGGLE BUTTON ---
+    const toggleBtn = document.createElement('button');
+    toggleBtn.innerHTML = '⚡ Open Cheat Menu';
+    toggleBtn.style = 'position:fixed; top:15px; right:15px; z-index:99999; padding:12px 18px; background:#00d2d3; color:black; border:none; border-radius:6px; cursor:pointer; font-weight:bold; font-family:sans-serif; box-shadow:0px 4px 10px rgba(0,0,0,0.3); font-size:14px; transition:0.2s;';
+    document.body.appendChild(toggleBtn);
+
+    // --- CREATE THE MAIN MENU WINDOW (GUI) ---
+    const menuBox = document.createElement('div');
+    menuBox.style = 'position:fixed; top:75px; right:15px; z-index:99999; width:280px; background:#1e272e; color:white; padding:15px; border-radius:10px; box-shadow:0px 8px 16px rgba(0,0,0,0.6); font-family:sans-serif; display:none; flex-direction:column; gap:10px; border:1px solid #3d3d3d;';
+    
+    // Header Text
+    const header = document.createElement('div');
+    header.innerHTML = '🎮 Blooket Cheat Panel';
+    header.style = 'font-weight:bold; font-size:16px; border-bottom:2px solid #3d3d3d; padding-bottom:8px; text-align:center; color:#00d2d3;';
+    menuBox.appendChild(header);
+
+    // Function to add a styled action button inside the menu
+    const createMenuButton = (text, dbKey, color = '#341f97', hoverColor = '#5f27cd') => {
+        const btn = document.createElement('button');
+        btn.innerHTML = text;
+        btn.style = `width:100%; padding:10px; background:${color}; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:13px; text-align:left; transition: 0.2s;`;
+        
+        btn.onmouseover = () => btn.style.background = hoverColor;
+        btn.onmouseout = () => btn.style.background = color;
+        
+        btn.addEventListener('click', () => {
+            const amount = prompt(`Enter value for [ ${text} ]:`);
+            if (amount && !isNaN(amount)) {
+                updateStat(dbKey, amount);
+            }
+        });
+        menuBox.appendChild(btn);
+    };
+
+    // --- ADD THE GAME OPTIONS TO THE GUI ---
+    createMenuButton("💰 Gold Quest: Set Gold", "g", "#ff9f43", "#ffb142");
+    createMenuButton("🎁 Santa's Workshop: Set Toys", "t", "#ee5253", "#ff6b6b");
+    createMenuButton("🎄 Christmas: Toys Per Question", "tpq", "#10ac84", "#1dd1a1");
+    createMenuButton("🛡️ Blook Rush: Set Defenses", "d", "#2e86de", "#54a0ff");
+    createMenuButton("🏃 Blook Rush: Set Team Blooks", "bs", "#2e86de", "#54a0ff");
+    createMenuButton("🏆 Classic Mode: Set Points", "p", "#8395a7", "#c8d6e5");
+
+    document.body.appendChild(menuBox);
+
+    // --- OPEN / CLOSE INTERACTION ---
+    toggleBtn.addEventListener('click', () => {
+        if (menuBox.style.display === 'none') {
+            menuBox.style.display = 'flex';
+            toggleBtn.innerHTML = '❌ Close Menu';
+            toggleBtn.style.background = '#ff4757';
+            toggleBtn.style.color = 'white';
+        } else {
+            menuBox.style.display = 'none';
+            toggleBtn.innerHTML = '⚡ Open Cheat Menu';
+            toggleBtn.style.background = '#00d2d3';
+            toggleBtn.style.color = 'black';
+        }
+    });
+
+})();
