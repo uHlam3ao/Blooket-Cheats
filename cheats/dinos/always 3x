@@ -1,0 +1,40 @@
+(() => {
+    // 1. Clears any old loops if you run this script again
+    if (window.fossilMultiplierLoop) {
+        clearInterval(window.fossilMultiplierLoop);
+    }
+
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    // 2. Starts a background loop to multiply your fossils
+    window.fossilMultiplierLoop = setInterval(() => {
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Gets your current fossils or sets it to 0 if empty
+                let currentFossils = stateNode.state.fossils || 0;
+                
+                // Multiplies your current fossil total by 3
+                stateNode.setState({ fossils: currentFossils * 3 });
+            }
+        } catch (e) {
+            // Skips errors during loading screens
+        }
+    }, 1000); // Runs every 1 second
+
+    // 3. Tells you the script is working
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('3x Fossil Multiplier Loop Active!');
+    n.remove();
+    console.clear();
+})();
