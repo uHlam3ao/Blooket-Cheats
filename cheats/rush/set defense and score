@@ -1,0 +1,41 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const mode = n.contentWindow.prompt("Type '1' to set Defense, or '2' to set Blooks:");
+    
+    if (mode === "1" || mode === "2") {
+        const amount = n.contentWindow.prompt("Enter the amount you want:");
+        if (amount) {
+            const getReact = (el) => {
+                for (const key in el) {
+                    if (key.startsWith("__reactInternalInstance$") || key.startsWith("__reactFiber$")) return el[key];
+                }
+            };
+            try {
+                // Find the main stateNode from the React application context
+                let stateNode = getReact(document.querySelector("#app > div > div")).return.stateNode;
+                let props = stateNode.props;
+                
+                let targetPath = mode === "1" ? "d" : "bs"; // 'd' represents Defense, 'bs' represents Blooks
+                
+                // Update the game session variables through the live game host
+                props.firebase.setVal({
+                    id: props.client.hostId,
+                    path: "c/" + props.client.name + "/" + targetPath,
+                    val: Number(amount)
+                });
+                
+                n.contentWindow.alert("Rush stats updated successfully!");
+            } catch (e) {
+                n.contentWindow.alert("Error! Make sure you are inside an active Rush match.");
+            }
+        }
+    } else if (mode !== null) {
+        n.contentWindow.alert("Invalid choice! Please choose 1 or 2.");
+    }
+    
+    n.remove();
+    console.clear();
+})();
