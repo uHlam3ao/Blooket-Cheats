@@ -1,0 +1,62 @@
+(async () => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    // 1. Array of common pack names available in the store
+    const packs = ['Medieval', 'Wonderland', 'Breakfast', 'Space', 'Bot', 'Aquatic', 'Safari', 'Dino', 'Ice Monster'];
+    const chosenPack = n.contentWindow.prompt(`Choose a pack to simulate opening:\n\n${packs.join(', ')}`);
+    
+    if (chosenPack) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                    return el[key];
+                }
+            }
+        };
+
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // 2. Simulates an instant pack purchase request to the game engine
+                const userToken = localStorage.getItem('token') || document.cookie;
+                if (userToken) {
+                    let response = await fetch('https://blooket.com', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            box: chosenPack.trim()
+                        })
+                    });
+                    
+                    let data = await response.json();
+                    
+                    if (data.unlocked) {
+                        n.contentWindow.alert(`Pack Simulated! You unlocked: ${data.unlocked.toUpperCase()}`);
+                        
+                        // Dynamically pushes the new item into your local UI view state
+                        if (stateNode.state.inventory) {
+                            let currentInv = stateNode.state.inventory;
+                            currentInv[data.unlocked] = (currentInv[data.unlocked] || 0) + 1;
+                            stateNode.setState({ inventory: currentInv });
+                        }
+                    } else {
+                        n.contentWindow.alert('Make sure you have enough tokens to buy this pack!');
+                    }
+                } else {
+                    n.contentWindow.alert('Log into your dashboard page before running this script!');
+                }
+            } else {
+                n.contentWindow.alert('Market/Dashboard instance not found!');
+            }
+        } catch (e) {
+            n.contentWindow.alert('Error communicating with pack servers!');
+        }
+    }
+    
+    n.remove();
+    console.clear();
+})();
