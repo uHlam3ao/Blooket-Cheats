@@ -1,0 +1,39 @@
+(() => {
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const candyAmount = n.contentWindow.prompt('Enter Candy Quest Candies amount:');
+    
+    if (candyAmount && !isNaN(candyAmount)) {
+        const getReact = (el) => {
+            for (const key in el) {
+                if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                    return el[key];
+                }
+            }
+        };
+
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Updates both common state variations for the candy count
+                stateNode.setState({ 
+                    candy: Number(candyAmount),
+                    candies: Number(candyAmount)
+                });
+                
+                n.contentWindow.alert(`Candies set to ${candyAmount}!`);
+            } else {
+                n.contentWindow.alert('Game instance not found!');
+            }
+        } catch (e) {
+            n.contentWindow.alert('Error updating candies!');
+        }
+    }
+    
+    n.remove();
+    console.clear();
+})();
