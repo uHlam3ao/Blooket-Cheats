@@ -1,0 +1,60 @@
+(() => {
+    // 1. Clears console logs
+    console.clear();
+
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    try {
+        // 2. Targets the dashboard inventory app
+        let reactElem = getReact(document.querySelector('#app > div > div'));
+        if (reactElem && reactElem.return && reactElem.return.stateNode) {
+            let stateNode = reactElem.return.stateNode;
+            
+            // Gets current blooks or inventory list
+            let items = stateNode.state.inventory || stateNode.state.blooks || {};
+            let cleanInventory = {};
+            let duplicatesCount = 0;
+
+            // Loops through items to find amounts greater than 1
+            for (const [name, amount] of Object.entries(items)) {
+                if (amount > 1) {
+                    cleanInventory[name] = 1; // Keep exactly 1
+                    duplicatesCount += (amount - 1); // Track how many are sold
+                } else {
+                    cleanInventory[name] = amount; // Keep singles
+                }
+            }
+
+            if (duplicatesCount > 0) {
+                // Instantly changes local display state
+                stateNode.setState({ 
+                    inventory: cleanInventory,
+                    blooks: cleanInventory
+                });
+
+                // Sends sell instruction directly to game servers
+                const userToken = localStorage.getItem('token');
+                if (userToken) {
+                    fetch('https://blooket.com', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
+
+                alert(`Successfully sold ${duplicatesCount} duplicates!`);
+            } else {
+                alert('No duplicate items found to sell.');
+            }
+        } else {
+            alert('Inventory instance not found! Please open your Blooks/Inventory tab first.');
+        }
+    } catch (e) {
+        alert('Error parsing inventory data.');
+    }
+})();
