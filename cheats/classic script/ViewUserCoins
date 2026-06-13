@@ -1,0 +1,34 @@
+(() => {
+    // 1. Target the React data container
+    const getReact = () => {
+        let el = document.querySelector('#app > div > div');
+        if (!el) return null;
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key]?.return?.stateNode;
+            }
+        }
+        return null;
+    };
+
+    const stateNode = getReact();
+    
+    // 2. Create the hidden iframe for the safe alert popup
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+
+    if (stateNode && stateNode.state) {
+        // 3. Look for commonly used coin and token variables in the dashboard state
+        let coins = stateNode.state.coins !== undefined ? stateNode.state.coins : 'Not Found';
+        let tokens = stateNode.state.tokens !== undefined ? stateNode.state.tokens : 'Not Found';
+        
+        n.contentWindow.alert(`Current Account Balances:\n\nCoins: ${coins}\nTokens: ${tokens}`);
+    } else {
+        n.contentWindow.alert('Dashboard instance not found! Please make sure you are logged in and on the main stats page.');
+    }
+
+    // 4. Clean up the iframe
+    n.remove();
+    console.clear();
+})();
