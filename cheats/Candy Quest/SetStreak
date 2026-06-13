@@ -2,7 +2,7 @@
     let n = document.createElement('iframe');
     n.style.display = 'none';
     document.body.append(n);
-    
+     
     const streakAmount = n.contentWindow.prompt('Enter Candy Quest Streak amount:');
     
     if (streakAmount && !isNaN(streakAmount)) {
