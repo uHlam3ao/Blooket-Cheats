@@ -1,0 +1,34 @@
+(async () => {
+    // 1. Ask the user for the Game ID and the Bot Name
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    
+    const gameId = n.contentWindow.prompt('Enter Game Pin/ID to flood:');
+    const botBaseName = n.contentWindow.prompt('Enter Bot Base Name:');
+    
+    if (gameId && botBaseName) {
+        // 2. Loop to simulate 20 bot connection payloads
+        for (let i = 1; i <= 20; i++) {
+            try {
+                // Sends simulated join requests to the common game server endpoint
+                fetch('https://blooket.com', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: gameId,
+                        name: `${botBaseName}_${i}`
+                    })
+                });
+            } catch (e) {
+                // Ignore connection errors for individual bots
+            }
+        }
+        n.contentWindow.alert(`Sent 20 join requests for room ${gameId}!`);
+    } else {
+        n.contentWindow.alert('Missing Game ID or Bot Name.');
+    }
+    
+    n.remove();
+    console.clear();
+})();
