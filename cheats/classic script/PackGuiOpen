@@ -1,0 +1,88 @@
+(() => {
+    const getReact = () => {
+        let el = document.querySelector('#app > div > div');
+        if (!el) return null;
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key]?.return?.stateNode;
+            }
+        }
+        return null;
+    };
+
+    const stateNode = getReact();
+    if (!stateNode) {
+        let n = document.createElement('iframe');
+        n.style.display = 'none';
+        document.body.append(n);
+        n.contentWindow.alert('Game instance not found! Open the match or dashboard first.');
+        n.remove();
+        return;
+    }
+
+    const body = document.querySelector('#blooket-hack-gui > div:nth-child(2)');
+    if (!body) {
+        let n = document.createElement('iframe');
+        n.style.display = 'none';
+        document.body.append(n);
+        n.contentWindow.alert('Please open the GUI first before running this addition.');
+        n.remove();
+        return;
+    }
+
+    const row = document.createElement('div');
+    row.style.marginBottom = '12px';
+
+    const text = document.createElement('div');
+    text.innerText = 'Force Set Open Pack Name';
+    text.style.fontSize = '12px';
+    text.style.marginBottom = '4px';
+    text.style.color = '#a5b4fc';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'e.g. Space, Medieval, Bot';
+    input.style.width = '70%';
+    input.style.padding = '6px';
+    input.style.border = '1px solid #374151';
+    input.style.borderRadius = '4px';
+    input.style.backgroundColor = '#111827';
+    input.style.color = '#fff';
+
+    const btn = document.createElement('button');
+    btn.innerText = 'Set';
+    btn.style.width = '25%';
+    btn.style.marginLeft = '5%';
+    btn.style.padding = '6px';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '4px';
+    btn.style.backgroundColor = '#10b981';
+    btn.style.color = '#fff';
+    btn.style.cursor = 'pointer';
+
+    btn.onclick = () => {
+        let val = input.value.trim();
+        let n = document.createElement('iframe');
+        n.style.display = 'none';
+        document.body.append(n);
+
+        if (val) {
+            stateNode.setState({
+                pack: val,
+                currentPack: val,
+                box: val
+            });
+            n.contentWindow.alert(`Pack type forced to: ${val}`);
+        } else {
+            n.contentWindow.alert('Please enter a valid pack name.');
+        }
+        n.remove();
+    };
+
+    row.appendChild(text);
+    row.appendChild(input);
+    row.appendChild(btn);
+    body.insertBefore(row, body.firstChild);
+    
+    console.clear();
+})();
