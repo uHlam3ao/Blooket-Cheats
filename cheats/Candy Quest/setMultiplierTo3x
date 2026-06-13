@@ -1,0 +1,28 @@
+(() => {
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    try {
+        let reactElem = getReact(document.querySelector('#app > div > div'));
+        if (reactElem && reactElem.return && reactElem.return.stateNode) {
+            let stateNode = reactElem.return.stateNode;
+            
+            // Sets Candy Quest multiplier state variable to 3
+            stateNode.setState({ 
+                multiplier: 3 
+            });
+        }
+    } catch (e) {}
+
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('Candy Quest Multiplier set to 3!');
+    n.remove();
+    console.clear();
+})();
