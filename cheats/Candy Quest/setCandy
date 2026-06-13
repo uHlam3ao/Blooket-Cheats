@@ -3,7 +3,7 @@
     n.style.display = 'none';
     document.body.append(n);
     
-    const candyAmount = n.contentWindow.prompt('Enter Candy Quest Candies amount:');
+    const candyAmount = n.contentWindow.prompt('enter the candies you want:');
     
     if (candyAmount && !isNaN(candyAmount)) {
         const getReact = (el) => {
