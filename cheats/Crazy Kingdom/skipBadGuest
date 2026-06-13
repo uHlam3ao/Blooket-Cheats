@@ -1,0 +1,63 @@
+(() => {
+    if (window.skipBadGuestLoop) {
+        clearInterval(window.skipBadGuestLoop);
+    }
+
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    // Starts a rapid loop to monitor guest interactions
+    window.skipBadGuestLoop = setInterval(() => {
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Inspects the active guest data structure
+                let guest = stateNode.state.guest;
+                
+                if (guest) {
+                    // Looks at what happens if you say "Yes" vs "No"
+                    let yesChoice = guest.yes || {};
+                    let noChoice = guest.no || {};
+                    
+                    // Scores the choices based on standard Crazy Kingdom stats
+                    let evaluateStats = (choice) => {
+                        return (choice.materials || 0) + 
+                               (choice.people || 0) + 
+                               (choice.happiness || 0) + 
+                               (choice.gold || 0);
+                    };
+
+                    let yesScore = evaluateStats(yesChoice);
+                    let noScore = evaluateStats(noChoice);
+
+                    // If both options hurt your kingdom, skip the guest entirely
+                    if (yesScore < 0 && noScore < 0) {
+                        // Triggers the standard internal method to generate a new guest
+                        if (typeof stateNode.nextGuest === 'function') {
+                            stateNode.nextGuest();
+                        } else {
+                            // Fallback state update to force a fresh guest slide
+                            stateNode.setState({ guest: null });
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            // Quietly handle transitions between guests
+        }
+    }, 200);
+
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('Bad Guest Auto-Skipper Active!');
+    n.remove();
+    console.clear();
+})();
