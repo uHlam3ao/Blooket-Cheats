@@ -3,7 +3,7 @@ _Debug/
 Compiled/
 
 # AudioCache can be rebuilt from sources
-AudioCache/
+AudioCache/ 
 
 # Lockfile
 _OpenInEditor.lock
