@@ -1,0 +1,51 @@
+(() => {
+    // 1. Clears existing loops if run multiple times
+    if (window.nameLimitLoop) {
+        clearInterval(window.nameLimitLoop);
+    }
+
+    // 2. Continuous loop to modify text inputs and internal state properties
+    window.nameLimitLoop = setInterval(() => {
+        try {
+            // Find any name input fields on the screen
+            const inputs = document.querySelectorAll('input[type="text"], input[placeholder*="name" i]');
+            inputs.forEach(input => {
+                // Remove restrictions from the HTML element
+                input.removeAttribute('maxlength');
+                input.maxLength = 999;
+            });
+
+            // Target the internal React component state
+            const getReact = (el) => {
+                for (const key in el) {
+                    if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                        return el[key];
+                    }
+                }
+            };
+
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Force the validation criteria to accept longer strings
+                if (stateNode.state) {
+                    stateNode.setState({
+                        maxNameLength: 999,
+                        nameLimit: 999
+                    });
+                }
+            }
+        } catch (e) {
+            // Skip errors if the elements are not currently rendered
+        }
+    }, 250);
+
+    // 3. Feedback alert
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('Name limit bypass loop active!');
+    n.remove();
+    console.clear();
+})();
