@@ -1,0 +1,52 @@
+(() => {
+    if (window.autoAnswerLoop) {
+        clearInterval(window.autoAnswerLoop);
+    }
+
+    const getReact = (el) => {
+        for (const key in el) {
+            if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
+                return el[key];
+            }
+        }
+    };
+
+    window.autoAnswerLoop = setInterval(() => {
+        try {
+            let reactElem = getReact(document.querySelector('#app > div > div'));
+            if (reactElem && reactElem.return && reactElem.return.stateNode) {
+                let stateNode = reactElem.return.stateNode;
+                
+                // Searches across common state variables for the current question
+                let q = stateNode.state.question || 
+                        stateNode.state.currentQuestion || 
+                        stateNode.state.quizQuestion;
+                
+                if (q) {
+                    // Searches across common state variables for the correct answer
+                    let ans = q.correctAnswer || q.answer || q.correct;
+                    
+                    if (ans) {
+                        let buttons = document.querySelectorAll('button, [role="button"], .styles__answerButton___12345');
+                        
+                        buttons.forEach((btn) => {
+                            let text = (btn.innerText || btn.textContent || '').trim().toLowerCase();
+                            let target = String(ans).trim().toLowerCase();
+                            
+                            if (text === target) {
+                                btn.click();
+                            }
+                        });
+                    }
+                }
+            }
+        } catch (e) {}
+    }, 250);
+
+    let n = document.createElement('iframe');
+    n.style.display = 'none';
+    document.body.append(n);
+    n.contentWindow.alert('Universal Auto-Answer Loop Active!');
+    n.remove();
+    console.clear();
+})();
